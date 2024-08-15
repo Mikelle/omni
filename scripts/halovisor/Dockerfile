@@ -7,7 +7,7 @@ FROM golang:alpine AS build-cosmovisor
 ENV COSMOVISOR_VERSION=v1.5.0
 RUN go install cosmossdk.io/tools/cosmovisor/cmd/cosmovisor@${COSMOVISOR_VERSION}
 
-FROM omniops/halo:${HALO_VERSION_GENESIS} AS build-genesis
+FROM omniops/halo:8beeaeb7 AS build-genesis
 
 # TODO: Add post-genesis network-upgrade versions here.
 

@@ -2,7 +2,7 @@
 network = "devnet"
 
 multi_omni_evms = true
-prometheus = true
+prometheus = false
 
 [node.validator01]
 [node.validator02]
