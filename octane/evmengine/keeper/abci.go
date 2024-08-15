@@ -210,10 +210,12 @@ func (k *Keeper) startBuild(ctx context.Context, appHash common.Hash, timestamp 
 	// Use provided time as timestamp for the next block.
 	// Or use latest execution block timestamp + 1 if is not greater.
 	// Since execution blocks must have unique second-granularity timestamps.
-	ts := uint64(timestamp.Unix())
+	ts := uint64(timestamp.UnixMilli())
+	log.Debug(ctx, "print timestamp1", "ts", ts)
 	if ts <= head.GetBlockTime() {
 		ts = head.GetBlockTime() + 1 // Subsequent blocks must have a higher timestamp.
 	}
+	log.Debug(ctx, "print timestamp2", "ts", ts)
 
 	// CometBFT has instant finality, so head/safe/finalized is latest height.
 	fcs := engine.ForkchoiceStateV1{

@@ -1,0 +1,11 @@
+# Devnet2 is the simple multi-validator devnet. It contains 2 validators.
+network = "devnet"
+
+multi_omni_evms = true
+prometheus = true
+
+[node.validator01]
+[node.validator02]
+
+[node.fullnode01]
+mode="archive"

@@ -66,7 +66,7 @@ func (s Static) OmniConsensusChain() Chain {
 	return Chain{
 		ID:             s.OmniConsensusChainIDUint64(),
 		Name:           "omni_consensus",
-		BlockPeriod:    time.Second * 2,
+		BlockPeriod:    time.Millisecond * 500,
 		Shards:         []xchain.ShardID{xchain.ShardBroadcast0}, // Consensus chain only supports broadcast shard.
 		DeployHeight:   1,                                        // Emit portal blocks start at 1, not 0.
 		AttestInterval: 0,                                        // Emit portal blocks are never empty, so this isn't required.

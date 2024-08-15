@@ -96,7 +96,7 @@ func gethDumpConfigToml(t *testing.T, baseCfg FullConfig) []byte {
 	var stdout, stderr bytes.Buffer
 	cmd := exec.Command("docker", "run",
 		fmt.Sprintf("--volume=%s:/tmp/config.toml", baseFile),
-		fmt.Sprintf("ethereum/client-go:%s", Version),
+		fmt.Sprintf("geth:latest"),
 		"dumpconfig",
 		"--config=/tmp/config.toml")
 	cmd.Stdout = &stdout

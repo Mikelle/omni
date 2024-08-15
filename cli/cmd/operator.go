@@ -261,7 +261,7 @@ func gethInit(ctx context.Context, network netconf.ID, dir string, moniker strin
 
 	// Run geth init via docker
 	{
-		image := "ethereum/client-go:" + geth.Version
+		image := "geth:latest"
 		dockerArgs := []string{"run",
 			"-v", dir + ":/geth",
 			image, "--",

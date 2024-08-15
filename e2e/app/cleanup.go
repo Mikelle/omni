@@ -48,7 +48,7 @@ func CleanupDir(ctx context.Context, dir string) error {
 			"--rm",             // Remove the container after it exits
 			"--entrypoint", "", // Clear the entrypoint so we can run a shell command
 			"-v", fmt.Sprintf("%v:/mount", absDir), // Mount the testnet dir into the container
-			"ethereum/client-go:latest",    // Use the latest geth image (which runs as root)
+			"geth:latest",    // Use the latest geth image (which runs as root)
 			"sh", "-c", "rm -rf /mount/*/") // Remove all files in the mounted testnet dir
 		if err != nil {
 			return errors.Wrap(err, "exec rm dir")

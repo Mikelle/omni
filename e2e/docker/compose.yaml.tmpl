@@ -64,7 +64,7 @@ services:
     labels:
       e2e: true
     container_name: {{ .InstanceName }}
-    image: "ethereum/client-go:{{ $.GethTag }}"
+    image: "geth:latest"
     restart: unless-stopped
     command:
       - --config=/geth/config.toml

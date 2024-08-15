@@ -142,7 +142,7 @@ func (k *Keeper) parseAndVerifyProposedPayload(ctx context.Context, msg *types.M
 
 	// Ensure the payload timestamp is after latest execution block and before or equaled to the current consensus block.
 	minTimestamp := head.GetBlockTime() + 1
-	maxTimestamp := uint64(sdk.UnwrapSDKContext(ctx).BlockTime().Unix())
+	maxTimestamp := uint64(sdk.UnwrapSDKContext(ctx).BlockTime().UnixMilli())
 	if maxTimestamp < minTimestamp { // Execution block minimum takes precedence
 		maxTimestamp = minTimestamp
 	}

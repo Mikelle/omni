@@ -14,7 +14,7 @@ services:
 
   omni_evm:
     container_name: omni_evm
-    image: ethereum/client-go:{{.GethTag}}
+    image: geth:latest
     restart: unless-stopped
     command:
       - --config=/geth/config.toml

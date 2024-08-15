@@ -2,14 +2,14 @@ version: "3.9"
 services:
   # Cleans up the geth data directory.
   clean:
-    image: "ethereum/client-go:latest"
+    image: "geth:latest"
     entrypoint: [ "rm", "-Rf", "/execution/geth" ]
     volumes:
       - ./execution:/execution
 
   # Sets up the genesis configuration for the go-ethereum client from a JSON file.
   geth-genesis:
-    image: "ethereum/client-go:latest"
+    image: "geth:latest"
     command: --datadir=/execution init /execution/genesis.json
     volumes:
       - ./execution:/execution
@@ -29,7 +29,7 @@ services:
   # Runs the go-ethereum execution client with the specified, unlocked account and necessary
   # APIs to allow for proof-of-stake consensus via Halo.
   geth:
-    image: "ethereum/client-go:latest"
+    image: "geth:latest"
     command:
       - --http
       - --http.api=eth,net,web3
