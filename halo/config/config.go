@@ -38,7 +38,7 @@ const (
 
 	defaultPruningOption      = pruningtypes.PruningOptionDefault // Note that Halo interprets this to be PruningEverything
 	defaultDBBackend          = db.GoLevelDBBackend
-	defaultEVMBuildDelay      = time.Millisecond * 300 // 100ms longer than geth's --miner.recommit=500ms.
+	defaultEVMBuildDelay      = time.Millisecond * 600 // 100ms longer than geth's --miner.recommit=500ms.
 	defaultEVMBuildOptimistic = true
 )
 

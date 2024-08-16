@@ -92,7 +92,7 @@ func MakeGethConfig(conf Config) FullConfig {
 
 	// Ethereum has slow block building times (2~4s), but we need fast times (<1s).
 	// Use 500ms so blocks are built in less than 1s.
-	cfg.Eth.Miner.Recommit = 200 * time.Millisecond
+	cfg.Eth.Miner.Recommit = 500 * time.Millisecond
 
 	// Set the bootnodes and trusted nodes.
 	cfg.Node.UserIdent = conf.Moniker
