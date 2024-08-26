@@ -137,7 +137,7 @@
    "TimeoutPrecommit": 1000000000,
    "TimeoutPrecommitDelta": 500000000,
    "TimeoutCommit": 1000000000,
-   "SkipTimeoutCommit": false,
+   "SkipTimeoutCommit": true,
    "CreateEmptyBlocks": true,
    "CreateEmptyBlocksInterval": 0,
    "PeerGossipSleepDuration": 100000000,

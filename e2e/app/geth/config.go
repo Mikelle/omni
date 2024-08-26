@@ -109,8 +109,8 @@ func MakeGethConfig(conf Config) FullConfig {
 	cfg.Node.P2P.ListenAddr = allInterfaces + ":30303"
 
 	// Add eth module
-	cfg.Node.HTTPModules = append(cfg.Node.HTTPModules, "eth")
-	cfg.Node.WSModules = append(cfg.Node.WSModules, "eth")
+	cfg.Node.HTTPModules = append(cfg.Node.HTTPModules, "eth", "txpool")
+	cfg.Node.WSModules = append(cfg.Node.WSModules, "eth", "txpool")
 
 	if conf.IsArchive {
 		cfg.Node.HTTPModules = append(cfg.Node.HTTPModules, "debug")
