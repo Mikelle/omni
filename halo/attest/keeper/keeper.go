@@ -32,8 +32,8 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 )
 
-// initialBlockOffset is the first block offset to attest to for all chains.
-const initialBlockOffset uint64 = 1
+// initialAttestOffset is the first attest offset to attest to for all chains.
+const initialAttestOffset uint64 = 1
 
 var _ sdk.ExtendVoteHandler = (*Keeper)(nil).ExtendVote
 var _ sdk.VerifyVoteExtensionHandler = (*Keeper)(nil).VerifyVoteExtension
@@ -283,7 +283,7 @@ func (k *Keeper) Approve(ctx context.Context, valset ValSet) error {
 				}
 			}
 			head, ok := approvedByChain[chainVer]
-			if !ok && att.GetAttestOffset() != initialBlockOffset {
+			if !ok && att.GetAttestOffset() != initialAttestOffset {
 				// Only start attesting from offset==1
 				continue
 			} else if ok && head+1 != att.GetAttestOffset() {
@@ -531,7 +531,7 @@ func (k *Keeper) earliestAttestation(ctx context.Context, version xchain.ChainVe
 }
 
 // listAllAttestations returns all approved attestations for the given chain.
-func (k *Keeper) listAllAttestations(ctx context.Context, version xchain.ChainVersion, status Status, blockOffset uint64) ([]*types.Attestation, error) {
+func (k *Keeper) listAllAttestations(ctx context.Context, version xchain.ChainVersion, status Status, attestOfset uint64) ([]*types.Attestation, error) {
 	defer latency("list_all_attestations")()
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	consensusID, err := netconf.ConsensusChainIDStr2Uint64(sdkCtx.ChainID())
@@ -539,7 +539,7 @@ func (k *Keeper) listAllAttestations(ctx context.Context, version xchain.ChainVe
 		return nil, errors.Wrap(err, "get consensus chain id")
 	}
 
-	idx := AttestationStatusChainIdConfLevelAttestOffsetIndexKey{}.WithStatusChainIdConfLevelAttestOffset(uint32(status), version.ID, uint32(version.ConfLevel), blockOffset)
+	idx := AttestationStatusChainIdConfLevelAttestOffsetIndexKey{}.WithStatusChainIdConfLevelAttestOffset(uint32(status), version.ID, uint32(version.ConfLevel), attestOfset)
 	iter, err := k.attTable.List(ctx, idx)
 	if err != nil {
 		return nil, errors.Wrap(err, "list")
@@ -839,7 +839,7 @@ func (k *Keeper) windowCompare(ctx context.Context, chainVer xchain.ChainVersion
 		return 0, err
 	}
 
-	latestOffset := initialBlockOffset // Use initial offset if attestation doesn't exist.
+	latestOffset := initialAttestOffset // Use initial offset if attestation doesn't exist.
 	if exists {
 		latestOffset = latest.GetAttestOffset()
 	}
@@ -854,8 +854,14 @@ func (k *Keeper) windowCompare(ctx context.Context, chainVer xchain.ChainVersion
 // - Ensure the vote extension limit is not exceeded per validator.
 // - Ensure all votes are from validators in the provided set.
 // - Ensure the vote block header is in the vote window.
-func (k *Keeper) verifyAggVotes(ctx context.Context, cChainID uint64, valset ValSet, aggs []*types.AggVote) error {
-	duplicate := make(map[xchain.AttestHeader]bool) // Detects duplicate aggregate votes.
+func (k *Keeper) verifyAggVotes(
+	ctx context.Context,
+	cChainID uint64,
+	valset ValSet,
+	aggs []*types.AggVote,
+	windowCompareFunc windowCompareFunc, // Aliased for testing
+) error {
+	duplicate := make(map[common.Hash]bool)         // Detects duplicate aggregate votes.
 	countsPerVal := make(map[common.Address]uint64) // Enforce vote extension limit.
 	for _, agg := range aggs {
 		if err := agg.Verify(); err != nil {
@@ -867,10 +873,15 @@ func (k *Keeper) verifyAggVotes(ctx context.Context, cChainID uint64, valset Val
 			return errors.Wrap(err, "check supported chain")
 		}
 
-		if duplicate[agg.AttestHeader.ToXChain()] {
+		attRoot, err := agg.AttestationRoot()
+		if err != nil {
+			return errors.Wrap(err, "attestation root")
+		}
+
+		if duplicate[attRoot] {
 			return errors.New("invalid duplicate aggregate votes", errAttrs...) // Note this is duplicate aggregates, which may contain non-overlapping votes so not technically slashable.
 		}
-		duplicate[agg.AttestHeader.ToXChain()] = true
+		duplicate[attRoot] = true
 
 		// Ensure all votes are from unique validators in the set
 		for _, sig := range agg.Signatures {
@@ -886,7 +897,7 @@ func (k *Keeper) verifyAggVotes(ctx context.Context, cChainID uint64, valset Val
 		}
 
 		// Ensure the block header is in the vote window.
-		if resp, err := k.windowCompare(ctx, agg.AttestHeader.XChainVersion(), agg.AttestHeader.AttestOffset); err != nil {
+		if resp, err := windowCompareFunc(ctx, agg.AttestHeader.XChainVersion(), agg.AttestHeader.AttestOffset); err != nil {
 			return errors.Wrap(err, "windower")
 		} else if resp != 0 {
 			errAttrs = append(errAttrs, "resp", resp)
